@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Financiero — TAPI 2026 v2</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script>try{if(window.ChartDataLabels)Chart.unregister(ChartDataLabels);}catch(e){}</script>
 <style>
 :root {
   --tapi-dark:    #0B2D20;
@@ -1152,13 +1154,14 @@ function buildTechSoftChart(){
   if(techSoftChartInst) return;
   const el=document.getElementById('chartTechSoft'); if(!el) return;
   const months=['jan','feb','mar','apr'];
-  const datasets=t.accounts.map((a,i)=>({label:a.name,data:months.map(m=>(a[m]||0)/1e3),backgroundColor:a._isOtros?'#94A3B8':GREEN_PALETTE[i%GREEN_PALETTE.length],borderRadius:4,stack:(a.name==='AWS'?'AWS':'Resto'),yAxisID:(a.name==='AWS'?'y':'y2')}));
+  const datasets=t.accounts.map((a,i)=>({label:a.name,data:months.map(m=>(a[m]||0)/1e3),backgroundColor:a._isOtros?'#94A3B8':GREEN_PALETTE[i%GREEN_PALETTE.length],borderRadius:3,stack:'ts'}));
   techSoftChartInst=new Chart(el,{type:'bar',data:{labels:t.months,datasets},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',axis:'x'},
-      plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}K`,footer:items=>'Total: $'+items.reduce((a,b)=>a+b.parsed.y,0).toFixed(1)+'K'}}},
-      scales:{x:{stacked:true,grid:{display:false}},
-        y:{stacked:true,position:'left',beginAtZero:true,title:{display:true,text:'AWS (US$K)'},ticks:{callback:v=>'$'+v+'K'},grid:{color:'#f1f5f9'}},
-        y2:{stacked:true,position:'right',beginAtZero:true,title:{display:true,text:'Resto (US$K)'},ticks:{callback:v=>'$'+v+'K'},grid:{drawOnChartArea:false}}}}});
+    plugins:(window.ChartDataLabels?[ChartDataLabels]:[]),
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom'},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}K`,footer:items=>'Total: $'+items.reduce((a,b)=>a+b.parsed.y,0).toFixed(1)+'K'}},
+        datalabels:{color:'#fff',font:{size:10,weight:'600'},display:'auto',formatter:(v,ctx)=>v>=1?'$'+v.toFixed(0)+'K':null}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{callback:v=>'$'+v+'K'},grid:{color:'#f1f5f9'}}}}});
 }
 
 function buildTravelsChart(){
