@@ -300,7 +300,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="tbtn" onclick="setPLMonth('jan',this)">Enero 2026</button>
         <button class="tbtn" onclick="setPLMonth('feb',this)">Febrero 2026</button>
-        <button class="tbtn active" onclick="setPLMonth('mar',this)">Marzo 2026</button>
+        <button class="tbtn" onclick="setPLMonth('mar',this)">Marzo 2026</button>
+        <button class="tbtn active" onclick="setPLMonth('apr',this)">Abril 2026</button>
       </div>
     </div>
   </div>
@@ -330,8 +331,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- ======================================================= -->
 <div class="section" id="tab-gastos">
   <div class="grid-4 mb24" id="gasto-kpis">
-    <div class="kpi g1"><div class="label">Total OPEX (sin Payroll)</div><div class="val" id="gk1">—</div><div class="sub"><span class="kpi-sub" id="gk1s">YTD Q1 2026</span></div></div>
-    <div class="kpi g2"><div class="label">Payroll Total</div><div class="val" id="gk2">—</div><div class="sub"><span class="kpi-sub" id="gk2s">YTD Q1 2026</span></div></div>
+    <div class="kpi g1"><div class="label">Total OPEX (sin Payroll)</div><div class="val" id="gk1">—</div><div class="sub"><span class="kpi-sub" id="gk1s">YTD 2026</span></div></div>
+    <div class="kpi g2"><div class="label">Payroll Total</div><div class="val" id="gk2">—</div><div class="sub"><span class="kpi-sub" id="gk2s">YTD 2026</span></div></div>
     <div class="kpi g3"><div class="label">Mayor Gasto Individual</div><div class="val" id="gk3">AWS</div><div class="sub"><span class="kpi-sub" id="gk3s">—</span></div></div>
     <div class="kpi g4"><div class="label">Dpto Mayor Gasto</div><div class="val" id="gk4">—</div><div class="sub"><span class="kpi-sub" id="gk4s">—</span></div></div>
   </div>
@@ -342,6 +343,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="tbtn" onclick="setGastoMonth('jan',this)">Enero 2026</button>
     <button class="tbtn" onclick="setGastoMonth('feb',this)">Febrero 2026</button>
     <button class="tbtn" onclick="setGastoMonth('mar',this)">Marzo 2026</button>
+    <button class="tbtn" onclick="setGastoMonth('apr',this)">Abril 2026</button>
   </div>
 
   <div class="grid-2 mb24">
@@ -542,7 +544,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="tbtn" onclick="setFMMonth('ytd',this)">YTD</button>
     <button class="tbtn" onclick="setFMMonth('jan',this)">Enero 2026</button>
     <button class="tbtn" onclick="setFMMonth('feb',this)">Febrero 2026</button>
-    <button class="tbtn active" onclick="setFMMonth('mar',this)">Marzo 2026</button>
+    <button class="tbtn" onclick="setFMMonth('mar',this)">Marzo 2026</button>
+    <button class="tbtn active" onclick="setFMMonth('apr',this)">Abril 2026</button>
   </div>
 
   <div class="grid-2 mb24">
@@ -3339,7 +3342,7 @@ revRender();
 // INIT
 // ============================================================
 buildGastos('ytd');
-buildCountry('mar');
+buildCountry('apr');
 
 
 
@@ -3360,7 +3363,7 @@ buildCountry('mar');
 // ============================================================
 // TAB 5: MÉTRICAS FINANCIERAS — KPI TOGGLE
 // ============================================================
-const FM_KPI_DATA={jan:{label:'Ene 26',fxgl:61167.09,int:128186.1647},feb:{label:'Feb 26',fxgl:18390.89,int:149534.4193},mar:{label:'Mar 26',fxgl:-79954.53,int:123027.7537},ytd:{label:'YTD Q1',fxgl:-396.54,int:128186.1647+149534.4193+123027.7537}};
+const FM_KPI_DATA={jan:{label:'Ene 26',fxgl:61000.0,int:128186.16},feb:{label:'Feb 26',fxgl:18476.0,int:149534.42},mar:{label:'Mar 26',fxgl:-80000.0,int:123027.03},apr:{label:'Abr 26',fxgl:103670.01,int:353519.44},ytd:{label:'YTD',fxgl:103146.01,int:754267.05}};
 const CAJA_COMP={"jan": {"bruta": [26251237, 2385729, 5516002, 1725739, 58227, 211301], "prefondeo": [-127299, -1563409, -2550381, 45816, -72057, 0], "tx": [0, -283346, -1353203, 0, 0, 0], "neta": [26123938, 538975, 1612418, 1771555, -13830, 211301]}, "feb": {"bruta": [21984146, 2781062, 8632852, 913334, 139069, 159976], "prefondeo": [-150820, -2140642, -4277297, 47007, -102612, 0], "tx": [0, -448612, -3024060, 0, 0, 0], "neta": [21833327, 191808, 1331495, 960341, 36457, 159976]}, "mar": {"bruta": [21764770, 4693199, 8487081, 919452, 132274, 182214], "prefondeo": [-152341, -1866271, -4798244, 42986, -120540, 0], "tx": [0, -456157, -2946393, 0, 0, 0], "neta": [21612430, 2370771, 742444, 962438, 11734, 182214]}};
 // YTD = último mes disponible (saldo de caja es stock, no flow)
 CAJA_COMP.ytd = CAJA_COMP.mar;
@@ -3468,7 +3471,7 @@ function toggleCajaCcy(mode,el){
   document.getElementById('cajaTableUSD').style.display=mode==='usd'?'':'none';
   document.getElementById('cajaTableLocal').style.display=mode==='local'?'':'none';
 }
-setFMMonth('mar',document.querySelector('#tab-finmetrics .toggle-group .tbtn.active'));
+setFMMonth('apr',document.querySelector('#tab-finmetrics .toggle-group .tbtn.active'));
 setCajaMonth('mar',document.querySelector('#tab-caja .toggle-group .tbtn.active'));
 
 // ============================================================
