@@ -584,12 +584,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <h3>Variación Mensual del Tipo de Cambio (%)</h3>
     <p style="font-size:.75rem;color:var(--gray-400);margin-bottom:10px">▲ Depreciación (costo para la empresa) · ▼ Apreciación (beneficio) · Base: Dic-25</p>
     <div class="fm-scroll"><table class="fm-table">
-      <thead><tr><th>Moneda</th><th>Dic-25</th><th>Ene-26</th><th>Feb-26</th><th>Mar-26</th></tr></thead>
-      <tbody><tr><td>🇦🇷 Argentina Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼1.8%</span></td><td><span class="fm-positive">▼2.2%</span></td><td><span class="fm-negative">▲1.8%</span></td></tr>
-<tr><td>🇲🇽 México Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼3.2%</span></td><td><span class="fm-positive">▼1.1%</span></td><td><span class="fm-negative">▲5.2%</span></td></tr>
-<tr><td>🇨🇴 Colombia Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼2.5%</span></td><td><span class="fm-negative">▲2.9%</span></td><td><span class="fm-positive">▼2.6%</span></td></tr>
-<tr><td>🇨🇱 Chile Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼2.8%</span></td><td><span class="fm-positive">▼2.5%</span></td><td><span class="fm-negative">▲9.4%</span></td></tr>
-<tr><td>🇵🇪 Perú Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼0.6%</span></td><td><span class="fm-negative">▲0.3%</span></td><td><span class="fm-negative">▲3.9%</span></td></tr>
+      <thead><tr><th>Moneda</th><th>Dic-25</th><th>Ene-26</th><th>Feb-26</th><th>Mar-26</th><th>Abr-26</th></tr></thead>
+      <tbody><tr><td>🇦🇷 Argentina Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼1.8%</span></td><td><span class="fm-positive">▼2.2%</span></td><td><span class="fm-negative">▲1.8%</span></td><td><span class="fm-negative">▲0.2%</span></td></tr>
+<tr><td>🇲🇽 México Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼3.2%</span></td><td><span class="fm-positive">▼1.1%</span></td><td><span class="fm-negative">▲5.2%</span></td><td><span class="fm-positive">▼3.3%</span></td></tr>
+<tr><td>🇨🇴 Colombia Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼2.5%</span></td><td><span class="fm-negative">▲2.9%</span></td><td><span class="fm-positive">▼2.6%</span></td><td><span class="fm-muted">0.0%</span></td></tr>
+<tr><td>🇨🇱 Chile Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼2.8%</span></td><td><span class="fm-positive">▼2.5%</span></td><td><span class="fm-negative">▲9.4%</span></td><td><span class="fm-positive">▼2.6%</span></td></tr>
+<tr><td>🇵🇪 Perú Δ%</td><td><span class="fm-muted">base</span></td><td><span class="fm-positive">▼0.6%</span></td><td><span class="fm-negative">▲0.3%</span></td><td><span class="fm-negative">▲3.9%</span></td><td><span class="fm-negative">▲0.9%</span></td></tr>
 </tbody>
     </table></div>
   </div>
@@ -3516,15 +3516,15 @@ setCajaMonth('mar',document.querySelector('#tab-caja .toggle-group .tbtn.active'
 // TAB 5: MÉTRICAS FINANCIERAS — CHARTS
 // ============================================================
 (function(){
-  const fmM=["Ene-26", "Feb-26", "Mar-26"],fmMfx=["Dic-25", "Ene-26", "Feb-26", "Mar-26"];
+  const fmM=["Ene-26", "Feb-26", "Mar-26", "Abr-26"],fmMfx=["Dic-25", "Ene-26", "Feb-26", "Mar-26", "Abr-26"];
   const ctxFX=document.getElementById('chartFXGL');
   if(ctxFX){new Chart(ctxFX,{type:'bar',data:{labels:fmM,datasets:[
-    {label:'🇦🇷 ARS',data:[9775.29, 4307.92, -42049.05],backgroundColor:'rgba(59,130,246,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇲🇽 MXN',data:[51391.81, 14089.89, -37905.09],backgroundColor:'rgba(16,185,129,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇨🇴 COP',data:[0.0, 0.0, 0.0],backgroundColor:'rgba(245,158,11,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇨🇱 CLP',data:[0.0, 0.0, 0.0],backgroundColor:'rgba(239,68,68,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇵🇪 PEN',data:[0.0, 0.0, 0.0],backgroundColor:'rgba(139,92,246,.75)',stack:'s1',barPercentage:.55},
-    {label:'Total',data:[61167.09, 18397.82, -79954.14],type:'line',borderColor:'#1E293B',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,tension:.3,order:-1}
+    {label:'🇦🇷 ARS',data:[9775.29, 4307.92, -42049.05, -5034.65],backgroundColor:'rgba(59,130,246,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇲🇽 MXN',data:[51391.81, 14089.89, -37905.09, 105559.06],backgroundColor:'rgba(16,185,129,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇨🇴 COP',data:[0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(245,158,11,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇨🇱 CLP',data:[0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(239,68,68,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇵🇪 PEN',data:[0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(139,92,246,.75)',stack:'s1',barPercentage:.55},
+    {label:'Total',data:[61167.09, 18397.82, -79954.14, 100524.41],type:'line',borderColor:'#1E293B',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,tension:.3,order:-1}
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},
       tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+(c.parsed.y>=0?'':'-')+Math.abs(c.parsed.y/1000).toFixed(1)+'K'}}}},
@@ -3532,7 +3532,7 @@ setCajaMonth('mar',document.querySelector('#tab-caja .toggle-group .tbtn.active'
   }})}
 
   const ctxI=document.getElementById('chartInterest');
-  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[128186.16, 149534.42, 123027.75],
+  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[128186.16, 149534.42, 123027.75, 353519.44],
     backgroundColor:['rgba(26,122,74,.65)','rgba(26,122,74,.8)','rgba(26,122,74,.55)'],borderRadius:6,barPercentage:.45}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return'$'+(c.parsed.y/1000).toFixed(1)+'K'}}}},
@@ -3541,11 +3541,11 @@ setCajaMonth('mar',document.querySelector('#tab-caja .toggle-group .tbtn.active'
 
   const ctxR=document.getElementById('chartFXRates');
   if(ctxR){new Chart(ctxR,{type:'line',data:{labels:fmMfx,datasets:[
-    {label:'MXN',data:[17.57, 17.01, 16.83, 17.7],borderColor:'#10B981',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y'},
-    {label:'PEN',data:[3.37, 3.35, 3.36, 3.49],borderColor:'#8B5CF6',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y2'},
-    {label:'ARS',data:[1521.34, 1493.78, 1460.27, 1486.17],borderColor:'#3B82F6',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
-    {label:'CLP',data:[898.41, 873.06, 850.93, 930.54],borderColor:'#EF4444',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
-    {label:'COP',data:[3717.63, 3622.85, 3726.75, 3631.43],borderColor:'#F59E0B',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'}
+    {label:'MXN',data:[17.57, 17.01, 16.83, 17.7, 17.12],borderColor:'#10B981',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y'},
+    {label:'PEN',data:[3.37, 3.35, 3.36, 3.49, 3.52],borderColor:'#8B5CF6',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y2'},
+    {label:'ARS',data:[1521.34, 1493.78, 1460.27, 1486.17, 1489.16],borderColor:'#3B82F6',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
+    {label:'CLP',data:[898.41, 873.06, 850.93, 930.54, 906.78],borderColor:'#EF4444',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
+    {label:'COP',data:[3717.63, 3622.85, 3726.75, 3631.43, 3631.43],borderColor:'#F59E0B',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'}
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
     scales:{x:{grid:{display:false}},
