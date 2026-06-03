@@ -1152,11 +1152,13 @@ function buildTechSoftChart(){
   if(techSoftChartInst) return;
   const el=document.getElementById('chartTechSoft'); if(!el) return;
   const months=['jan','feb','mar','apr'];
-  const datasets=t.accounts.map((a,i)=>({label:a.name,data:months.map(m=>(a[m]||0)/1e3),backgroundColor:a._isOtros?'#94A3B8':GREEN_PALETTE[i%GREEN_PALETTE.length],borderRadius:4,stack:'ts'}));
+  const datasets=t.accounts.map((a,i)=>({label:a.name,data:months.map(m=>(a[m]||0)/1e3),backgroundColor:a._isOtros?'#94A3B8':GREEN_PALETTE[i%GREEN_PALETTE.length],borderRadius:4,stack:(a.name==='AWS'?'AWS':'Resto'),yAxisID:(a.name==='AWS'?'y':'y2')}));
   techSoftChartInst=new Chart(el,{type:'bar',data:{labels:t.months,datasets},
-    options:{responsive:true,maintainAspectRatio:false,
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',axis:'x'},
       plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}K`,footer:items=>'Total: $'+items.reduce((a,b)=>a+b.parsed.y,0).toFixed(1)+'K'}}},
-      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'$'+v+'K'},grid:{color:'#f1f5f9'}}}}});
+      scales:{x:{stacked:true,grid:{display:false}},
+        y:{stacked:true,position:'left',beginAtZero:true,title:{display:true,text:'AWS (US$K)'},ticks:{callback:v=>'$'+v+'K'},grid:{color:'#f1f5f9'}},
+        y2:{stacked:true,position:'right',beginAtZero:true,title:{display:true,text:'Resto (US$K)'},ticks:{callback:v=>'$'+v+'K'},grid:{drawOnChartArea:false}}}}});
 }
 
 function buildTravelsChart(){
@@ -1173,7 +1175,7 @@ function buildTravelsChart(){
 
 function buildGastos(month){
   currentGastoMonth=month;
-  const lbl = month==='jan'?'Enero 2026':month==='feb'?'Febrero 2026':month==='mar'?'Marzo 2026':'YTD';
+  const lbl = month==='jan'?'Enero 2026':month==='feb'?'Febrero 2026':month==='mar'?'Marzo 2026':month==='apr'?'Abril 2026':'YTD';
   document.getElementById('deptChartTitle').textContent=`OPEX por Departamento — ${lbl}`;
   document.getElementById('linesChartTitle').textContent=`OPEX por Línea P&L — ${lbl}`;
   document.getElementById('deptPeriodLabel').textContent=`${lbl} · Gastos + HR + Impuestos · Excluye Payroll`;
@@ -1181,16 +1183,17 @@ function buildGastos(month){
   // KPIs
   // Total OPEX desde D.lines (que coincide con P&L); excluye Payroll, Taxes, Fixed Assets
   const totalOpex = D.lines.reduce((s,l)=>s+getVal(l,month),0);
-  const payrollMap = {jan:D.payroll.jan, feb:D.payroll.feb, mar:D.payroll.mar};
-  const payrollVal = month==='ytd' ? (payrollMap.jan||0)+(payrollMap.feb||0)+(payrollMap.mar||0) : payrollMap[month];
+  const payrollMap = {jan:D.payroll.jan, feb:D.payroll.feb, mar:D.payroll.mar, apr:D.payroll.apr};
+  const payrollVal = month==='ytd' ? (payrollMap.jan||0)+(payrollMap.feb||0)+(payrollMap.mar||0)+(payrollMap.apr||0) : payrollMap[month];
   // AWS from Management (AWS,INC US) + IT (AWS MX) departments
-  const awsByMonth = {jan: 173869, feb: 166061, mar: 163872, ytd: 503802};
+  const _aws = (D.techSoftByVendor && D.techSoftByVendor.accounts.find(a=>a.name==='AWS')) || {};
+  const awsByMonth = {jan:_aws.jan||0, feb:_aws.feb||0, mar:_aws.mar||0, apr:_aws.apr||0, ytd:(_aws.jan||0)+(_aws.feb||0)+(_aws.mar||0)+(_aws.apr||0)};
   const awsVal = awsByMonth[month] ?? awsByMonth.ytd;
   document.getElementById('gk1').textContent=fmt(totalOpex);
   document.getElementById('gk1s').textContent=lbl;
   document.getElementById('gk2').textContent= payrollVal==null?'—':fmt(payrollVal);
   const pk = v => v==null?'—':`$${(v/1e3).toFixed(0)}K`;
-  document.getElementById('gk2s').textContent=month==='jan'?'Solo Enero':month==='feb'?'Solo Febrero':month==='mar'?'Solo Marzo':`Ene: ${pk(D.payroll.jan)} · Feb: ${pk(D.payroll.feb)} · Mar: ${pk(D.payroll.mar)}`;
+  document.getElementById('gk2s').textContent=month==='jan'?'Solo Enero':month==='feb'?'Solo Febrero':month==='mar'?'Solo Marzo':month==='apr'?'Solo Abril':`Ene: ${pk(D.payroll.jan)} · Feb: ${pk(D.payroll.feb)} · Mar: ${pk(D.payroll.mar)} · Abr: ${pk(D.payroll.apr)}`;
   document.getElementById('gk3').textContent='AWS';
   document.getElementById('gk3s').textContent=`$${(awsVal/1e3).toFixed(0)}K · Cloud infra`;
   const topDept=D.dept.slice().sort((a,b)=>getVal(b,month)-getVal(a,month))[0];
@@ -1208,7 +1211,7 @@ function buildGastos(month){
     data:{
       labels:depts.map(d=>d.dept),
       datasets: month==='ytd'
-        ? [{label:'Ene 2026',data:depts.map(d=>d.jan/1e3),backgroundColor:'#A7F3D0',borderRadius:4},{label:'Feb 2026',data:depts.map(d=>d.feb/1e3),backgroundColor:'#1A7A4A',borderRadius:4},{label:'Mar 2026',data:depts.map(d=>(d.mar||0)/1e3),backgroundColor:'#34D399',borderRadius:4}]
+        ? [{label:'Ene 2026',data:depts.map(d=>d.jan/1e3),backgroundColor:'#A7F3D0',borderRadius:4},{label:'Feb 2026',data:depts.map(d=>d.feb/1e3),backgroundColor:'#1A7A4A',borderRadius:4},{label:'Mar 2026',data:depts.map(d=>(d.mar||0)/1e3),backgroundColor:'#34D399',borderRadius:4},{label:'Abr 2026',data:depts.map(d=>(d.apr||0)/1e3),backgroundColor:'#059669',borderRadius:4}]
         : [{label:lbl,data:depts.map(d=>getVal(d,month)/1e3),backgroundColor:GREEN_PALETTE,borderRadius:6}]
     },
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:month==='ytd',grid:{display:false}},y:{stacked:month==='ytd',ticks:{callback:v=>'$'+v+'K'},grid:{color:'#f1f5f9'}}}}
@@ -1249,7 +1252,7 @@ function buildGastos(month){
     const momP=d.jan>0?pct(d.feb,d.jan):0;
     const momCls=momP>=0?'mom-pos':'mom-neg';
     const momStr=d.jan>0&&month==='ytd'?`<span class="${momCls}">${momP>=0?'▲':'▼'} ${Math.abs(momP).toFixed(1)}% MoM Feb vs Ene</span>`:'';
-    const sub=month==='jan'?`Enero: ${fmtAmt(d.jan)}`:month==='feb'?`Febrero: ${fmtAmt(d.feb)}`:month==='mar'?`Marzo: ${fmtAmt(d.mar||0)}`:`Ene: ${fmtAmt(d.jan)} · Feb: ${fmtAmt(d.feb)} · Mar: ${fmtAmt(d.mar||0)}`;
+    const sub=month==='jan'?`Enero: ${fmtAmt(d.jan)}`:month==='feb'?`Febrero: ${fmtAmt(d.feb)}`:month==='mar'?`Marzo: ${fmtAmt(d.mar||0)}`:month==='apr'?`Abril: ${fmtAmt(d.apr||0)}`:`Ene: ${fmtAmt(d.jan)} · Feb: ${fmtAmt(d.feb)} · Mar: ${fmtAmt(d.mar||0)} · Abr: ${fmtAmt(d.apr||0)}`;
     const vBars=vItems.slice(0,5).map(v=>`<div class="bar-row"><div class="bar-lbl" title="${v.name}">${v.name}</div><div class="bar-trk"><div class="bar-fill" style="width:${(Math.abs(v.mval)/maxV*100).toFixed(0)}%"></div></div><div class="bar-amt">${fmtAmt(v.mval)}</div></div>`).join('') || '<div style="color:#94A3B8;font-size:.8rem;padding:6px 0">Sin movimientos en el período</div>';
     const lBars=lItems.slice(0,5).map(l=>`<div class="bar-row"><div class="bar-lbl">${l.name}</div><div class="bar-trk"><div class="bar-fill ln" style="width:${(l.mval/maxL*100).toFixed(0)}%"></div></div><div class="bar-amt">${fmtAmt(l.mval)}</div></div>`).join('') || '<div style="color:#94A3B8;font-size:.8rem;padding:6px 0">Sin movimientos en el período</div>';
     grid.innerHTML+=`
