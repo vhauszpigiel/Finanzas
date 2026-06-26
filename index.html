@@ -607,6 +607,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="tbtn" onclick="setIntMonth('mar',this)">Marzo 2026</button>
       <button class="tbtn" onclick="setIntMonth('apr',this)">Abril 2026</button>
       <button class="tbtn active" onclick="setIntMonth('may',this)">Mayo 2026</button>
+      <button class="tbtn" onclick="setIntMonth('ytd',this)">YTD</button>
     </div>
     <div class="filter-group" style="margin-bottom:12px;max-width:280px">
       <label>País</label>
@@ -3484,15 +3485,15 @@ setCajaMonth('apr',document.querySelector('#tab-caja .toggle-group .tbtn.active'
 // TAB 5: MÉTRICAS FINANCIERAS — CHARTS
 // ============================================================
 (function(){
-  const fmM=["Ene-26", "Feb-26", "Mar-26", "Abr-26"],fmMfx=["Dic-25", "Ene-26", "Feb-26", "Mar-26", "Abr-26"];
+  const fmM=["Ene-26", "Feb-26", "Mar-26", "Abr-26", "May-26"],fmMfx=["Dic-25", "Ene-26", "Feb-26", "Mar-26", "Abr-26", "May-26"];
   const ctxFX=document.getElementById('chartFXGL');
   if(ctxFX){new Chart(ctxFX,{type:'bar',data:{labels:fmM,datasets:[
-    {label:'🇦🇷 ARS',data:[9775.29, 4307.92, -42049.05, -5034.65],backgroundColor:'rgba(59,130,246,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇲🇽 MXN',data:[51391.81, 14089.89, -37905.09, 105559.06],backgroundColor:'rgba(16,185,129,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇨🇴 COP',data:[0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(245,158,11,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇨🇱 CLP',data:[0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(239,68,68,.75)',stack:'s1',barPercentage:.55},
-    {label:'🇵🇪 PEN',data:[0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(139,92,246,.75)',stack:'s1',barPercentage:.55},
-    {label:'Total',data:[61167.09, 18397.82, -79954.14, 100524.41],type:'line',borderColor:'#1E293B',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,tension:.3,order:-1}
+    {label:'🇦🇷 ARS',data:[9775.29, 4307.92, -42049.05, -5034.65, 4960.82],backgroundColor:'rgba(59,130,246,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇲🇽 MXN',data:[51391.81, 14089.89, -37905.09, 105559.06, 65353.53],backgroundColor:'rgba(16,185,129,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇨🇴 COP',data:[0.0, 0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(245,158,11,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇨🇱 CLP',data:[0.0, 0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(239,68,68,.75)',stack:'s1',barPercentage:.55},
+    {label:'🇵🇪 PEN',data:[0.0, 0.0, 0.0, 0.0, 0.0],backgroundColor:'rgba(139,92,246,.75)',stack:'s1',barPercentage:.55},
+    {label:'Total',data:[61167.09, 18397.82, -79954.14, 100524.41, 70314.35],type:'line',borderColor:'#1E293B',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,tension:.3,order:-1}
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},
       tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+(c.parsed.y>=0?'':'-')+Math.abs(c.parsed.y/1000).toFixed(1)+'K'}}}},
@@ -3500,8 +3501,8 @@ setCajaMonth('apr',document.querySelector('#tab-caja .toggle-group .tbtn.active'
   }})}
 
   const ctxI=document.getElementById('chartInterest');
-  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[128186.16, 149534.42, 123027.75, 353519.44],
-    backgroundColor:['rgba(26,122,74,.65)','rgba(26,122,74,.8)','rgba(26,122,74,.55)'],borderRadius:6,barPercentage:.45}]},
+  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[128186.16, 149534.42, 35038.7, 237611.73, 23069.76],
+    backgroundColor:['rgba(26,122,74,.65)','rgba(26,122,74,.8)','rgba(26,122,74,.55)','rgba(26,122,74,.7)','rgba(26,122,74,.85)'],borderRadius:6,barPercentage:.45}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return'$'+(c.parsed.y/1000).toFixed(1)+'K'}}}},
       scales:{x:{grid:{display:false}},y:{ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K'}},grid:{color:'rgba(0,0,0,.05)'}}}
@@ -3509,11 +3510,11 @@ setCajaMonth('apr',document.querySelector('#tab-caja .toggle-group .tbtn.active'
 
   const ctxR=document.getElementById('chartFXRates');
   if(ctxR){new Chart(ctxR,{type:'line',data:{labels:fmMfx,datasets:[
-    {label:'MXN',data:[17.57, 17.01, 16.83, 17.7, 17.12],borderColor:'#10B981',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y'},
-    {label:'PEN',data:[3.37, 3.35, 3.36, 3.49, 3.52],borderColor:'#8B5CF6',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y2'},
-    {label:'ARS',data:[1521.34, 1493.78, 1460.27, 1486.17, 1489.16],borderColor:'#3B82F6',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
-    {label:'CLP',data:[898.41, 873.06, 850.93, 930.54, 906.78],borderColor:'#EF4444',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
-    {label:'COP',data:[3717.63, 3622.85, 3726.75, 3631.43, 3631.43],borderColor:'#F59E0B',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'}
+    {label:'MXN',data:[17.57, 17.01, 16.83, 17.7, 17.12, 16.93],borderColor:'#10B981',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y'},
+    {label:'PEN',data:[3.37, 3.35, 3.36, 3.49, 3.52, 3.42],borderColor:'#8B5CF6',backgroundColor:'transparent',borderWidth:2.5,tension:.3,pointRadius:4,yAxisID:'y2'},
+    {label:'ARS',data:[1521.34, 1493.78, 1460.27, 1486.17, 1489.16, 1487.79],borderColor:'#3B82F6',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
+    {label:'CLP',data:[898.41, 873.06, 850.93, 930.54, 906.78, 889.37],borderColor:'#EF4444',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'},
+    {label:'COP',data:[3717.63, 3622.85, 3726.75, 3631.43, 3631.43, 3639.53],borderColor:'#F59E0B',backgroundColor:'transparent',borderWidth:2,tension:.3,pointRadius:4,borderDash:[6,3],yAxisID:'y3'}
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
     scales:{x:{grid:{display:false}},
@@ -3535,32 +3536,39 @@ function setIntMonth(m,el){intMonth=m;document.querySelectorAll('#tab-finmetrics
 function setIntCur(c,el){intCur=c;document.getElementById('intCurUSD').classList.toggle('active',c==='usd');document.getElementById('intCurLocal').classList.toggle('active',c==='local');renderInt();}
 function setIntCountry(c){intCountry=c;renderInt();}
 function renderInt(){
-  const mn=INTVIEW.mnum[intMonth],lbl=INTVIEW.monthLbl[intMonth];
-  const accs0=INTVIEW.accounts.filter(a=>intCountry==="Consolidado"||a.country===intCountry);
+  const ytd=intMonth==="ytd",mn=ytd?5:INTVIEW.mnum[intMonth],lbl=ytd?"YTD":INTVIEW.monthLbl[intMonth];
+  function av(a){
+    if(ytd){let au=0,al=0,ha=false,su=null,sl=null;[1,2,3,4,5].forEach(k=>{const d=a.m[k];if(!d)return;if(d.au!=null){au+=d.au;ha=true;}if(d.al!=null)al+=d.al;if(d.su!=null){su=d.su;sl=d.sl;}});return{su:su,sl:sl,rt:null,au:ha?au:null,al:al};}
+    return a.m[mn]||null;
+  }
   const sum={"Intereses devengados":0,"FCI":0,"Rdo. por tenencia":0};
-  accs0.forEach(a=>{const d=a.m[mn];if(d&&d.au!=null&&sum[a.clas]!=null)sum[a.clas]+=d.au;});
+  const accs0=INTVIEW.accounts.filter(a=>intCountry==="Consolidado"||a.country===intCountry);
+  accs0.forEach(a=>{const d=av(a);if(d&&d.au!=null&&sum[a.clas]!=null)sum[a.clas]+=d.au;});
   const ig=sum["Intereses devengados"],fci=sum["FCI"],rdt=sum["Rdo. por tenencia"],tot=ig+fci+rdt;
   const cards=[["Intereses devengados",ig,"g1"],["FCI",fci,"g2"],["Rdo. por tenencia",rdt,"g3"],["Total",tot,"g4"]];
   const cs=intCountry==="Consolidado"?"":" · "+intCountry;
-  document.getElementById('intApertura').innerHTML=cards.map(c=>'<div class="kpi '+c[2]+'"><div class="label">'+c[0]+' — '+lbl+' 26</div><div class="val" style="font-size:1.3rem">'+intUSD(c[1])+'</div><div class="sub"><span class="kpi-sub">USD'+cs+'</span></div></div>').join("");
+  const lblTxt=ytd?"YTD":(lbl+" 26");
+  document.getElementById('intApertura').innerHTML=cards.map(c=>'<div class="kpi '+c[2]+'"><div class="label">'+c[0]+' — '+lblTxt+'</div><div class="val" style="font-size:1.3rem">'+intUSD(c[1])+'</div><div class="sub"><span class="kpi-sub">USD'+cs+'</span></div></div>').join("");
   const groups=[["Intereses devengados",ig],["FCI",fci],["Rdo. por tenencia",rdt]];
-  let h='<thead><tr><th>Cuenta</th><th>Saldo</th><th>Tasa anual.</th><th>Interés '+lbl+'-26</th></tr></thead><tbody>';
+  const intHdr=ytd?"Interés YTD":("Interés "+lbl+"-26");
+  const salHdr=ytd?"Saldo (May)":"Saldo";
+  let h='<thead><tr><th>Cuenta</th><th>'+salHdr+'</th><th>Tasa anual.</th><th>'+intHdr+'</th></tr></thead><tbody>';
   let cSal=0,cInt=0,cWrN=0,cWrD=0,anyC=false;
   groups.forEach(gp=>{
     const g=gp[0];
-    const accs=accs0.filter(a=>a.clas===g&&a.m[mn]&&(a.m[mn].au!=null||a.m[mn].su!=null));
+    const accs=accs0.map(a=>[a,av(a)]).filter(x=>x[1]&&(x[1].au!=null||x[1].su!=null)&&x[0].clas===g);
     if(!accs.length)return;
     h+='<tr class="sub-hdr"><td colspan="4">'+g+'</td></tr>';
-    accs.forEach(a=>{const d=a.m[mn];
+    accs.forEach(x=>{const a=x[0],d=x[1];
       const sal=d.su==null?'<span class="fm-muted">—</span>':(intCur==="usd"?intUSD(d.su):intLoc(d.sl,a.ccy));
-      const tasa=(g==="FCI"||d.rt==null)?'<span class="fm-muted">—</span>':'<span class="fm-rate">'+(d.rt*100).toFixed(2)+'%</span>';
+      const tasa=(ytd||g==="FCI"||d.rt==null)?'<span class="fm-muted">—</span>':'<span class="fm-rate">'+(d.rt*100).toFixed(2)+'%</span>';
       const inte=intCur==="usd"?intUSD(d.au):intLoc(d.al,a.ccy);
       h+='<tr><td title="'+a.name+'">'+a.name+'</td><td>'+sal+'</td><td>'+tasa+'</td><td>'+inte+'</td></tr>';
-      if(g!=="Rdo. por tenencia"){anyC=true;if(d.su!=null){cSal+=d.su;if(d.rt!=null){cWrN+=d.su*d.rt;cWrD+=d.su;}}if(d.au!=null)cInt+=d.au;}
+      if(g!=="Rdo. por tenencia"){anyC=true;if(d.su!=null){cSal+=d.su;if(d.rt!=null&&!ytd){cWrN+=d.su*d.rt;cWrD+=d.su;}}if(d.au!=null)cInt+=d.au;}
     });
     if(intCur==="usd")h+='<tr class="total-row"><td>Subtotal '+g+'</td><td></td><td></td><td>'+intUSD(gp[1])+'</td></tr>';
   });
-  if(intCur==="usd"&&anyC){const wr=cWrD?'<span class="fm-rate">'+(cWrN/cWrD*100).toFixed(2)+'%</span>':'—';
+  if(intCur==="usd"&&anyC){const wr=(!ytd&&cWrD)?'<span class="fm-rate">'+(cWrN/cWrD*100).toFixed(2)+'%</span>':'<span class="fm-muted">—</span>';
     h+='<tr class="total-row" style="background:rgba(16,185,129,.07)"><td><b>Intereses devengados + FCI</b></td><td><b>'+intUSD(cSal)+'</b></td><td><b>'+wr+'</b></td><td><b>'+intUSD(cInt)+'</b></td></tr>';}
   if(intCur==="usd")h+='<tr class="total-row" style="border-top:2px solid #cbd5e1"><td><b>TOTAL Intereses</b></td><td></td><td></td><td><b>'+intUSD(tot)+'</b></td></tr>';
   h+='</tbody>';
