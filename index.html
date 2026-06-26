@@ -573,7 +573,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <div class="grid-2 mb24">
     <div class="card"><h3>FX Gain/Loss por País (USD)</h3><div class="chart-wrap-lg"><canvas id="chartFXGL"></canvas></div></div>
-    <div class="card"><h3>Intereses Ganados — Total USD</h3><div class="chart-wrap-lg"><canvas id="chartInterest"></canvas></div></div>
+    <div class="card"><h3>Resultado de Intereses — Total USD <span style="font-weight:400;font-size:.7rem;color:var(--gray-400)">(devengados + FCI + tenencia)</span></h3><div class="chart-wrap-lg"><canvas id="chartInterest"></canvas></div></div>
   </div>
 
   <div class="card mb24">
@@ -3370,7 +3370,7 @@ buildCountry('apr');
 // ============================================================
 // TAB 5: MÉTRICAS FINANCIERAS — KPI TOGGLE
 // ============================================================
-const FM_KPI_DATA={jan:{label:'Ene 26',fxgl:61000.0,int:128186.16},feb:{label:'Feb 26',fxgl:18476.0,int:149534.42},mar:{label:'Mar 26',fxgl:-80000.0,int:35038.7},apr:{label:'Abr 26',fxgl:100524.41,int:237611.73},may:{label:'May 26',fxgl:70314.35,int:23069.76},ytd:{label:'YTD',fxgl:170314.76,int:573440.77}};
+const FM_KPI_DATA={jan:{label:'Ene 26',fxgl:61000.0,int:115119},feb:{label:'Feb 26',fxgl:18476.0,int:145176},mar:{label:'Mar 26',fxgl:-80000.0,int:39334},apr:{label:'Abr 26',fxgl:100524.41,int:249874},may:{label:'May 26',fxgl:70314.35,int:45536},ytd:{label:'YTD',fxgl:170314.76,int:595039}};
 const CAJA_COMP={"jan": {"bruta": [22078766, 7360727, 17981679, 1717645, 143058, 173103], "prefondeo": [-100775, -2085280, -4226130, -490112, -99999, -69315], "tx": [-5741, -441918, -3148623, -323680, 190846, -4890], "neta": [21972250, 4833529, 10606926, 903853, 233904, 98898]}, "feb": {"bruta": [21842571, 7426573, 18815913, 1917400, 137004, 235070], "prefondeo": [-102296, -2000530, -5061578, -383980, -112056, -31340], "tx": [-5741, -467695, -3227758, -572408, 240966, -4822], "neta": [21734534, 4958349, 10526576, 961011, 265914, 198908]}, "mar": {"bruta": [21351018, 6360592, 15385979, 2627876, 346134, 104854], "prefondeo": [-66262, -1353104, -5031546, 70683, -122472, -4199], "tx": [-5741, -556932, -3701265, -788964, 151653, -3035], "neta": [21279015, 4450555, 6653168, 1909595, 375315, 97620]}, "apr": {"bruta": [21166307, 9043740, 18578340, 2225844, 359335, 587114], "prefondeo": [-108876, -2258020, -6866430, -223645, -72066, -876886], "tx": [-5741, -3381, -819918, -15726, -6860, -1772], "neta": [21051690, 6782339, 10891991, 1986473, 280409, -291544]}};
 // YTD = último mes disponible (saldo de caja es stock, no flow)
 CAJA_COMP.ytd = CAJA_COMP.apr;
@@ -3449,7 +3449,7 @@ function setFMMonth(m,el){
   const d=FM_KPI_DATA[m];
   document.getElementById('fm-fxgl-label').textContent='FX Gain/Loss — '+d.label;
   document.getElementById('fm-fxgl-val').innerHTML=fmFmt(d.fxgl);
-  document.getElementById('fm-int-label').textContent='Intereses Ganados — '+d.label;
+  document.getElementById('fm-int-label').textContent='Resultado Intereses — '+d.label;
   document.getElementById('fm-int-val').innerHTML=fmFmt(d.int);
 }
 
@@ -3501,7 +3501,7 @@ setCajaMonth('apr',document.querySelector('#tab-caja .toggle-group .tbtn.active'
   }})}
 
   const ctxI=document.getElementById('chartInterest');
-  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[128186.16, 149534.42, 35038.7, 237611.73, 23069.76],
+  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[115119, 145176, 39334, 249874, 45536],
     backgroundColor:['rgba(26,122,74,.65)','rgba(26,122,74,.8)','rgba(26,122,74,.55)','rgba(26,122,74,.7)','rgba(26,122,74,.85)'],borderRadius:6,barPercentage:.45}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return'$'+(c.parsed.y/1000).toFixed(1)+'K'}}}},
