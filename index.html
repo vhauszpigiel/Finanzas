@@ -3501,11 +3501,14 @@ setCajaMonth('apr',document.querySelector('#tab-caja .toggle-group .tbtn.active'
   }})}
 
   const ctxI=document.getElementById('chartInterest');
-  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[{label:'Intereses (USD)',data:[115119, 145176, 39334, 249874, 45536],
-    backgroundColor:['rgba(26,122,74,.65)','rgba(26,122,74,.8)','rgba(26,122,74,.55)','rgba(26,122,74,.7)','rgba(26,122,74,.85)'],borderRadius:6,barPercentage:.45}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return'$'+(c.parsed.y/1000).toFixed(1)+'K'}}}},
-      scales:{x:{grid:{display:false}},y:{ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K'}},grid:{color:'rgba(0,0,0,.05)'}}}
+  if(ctxI){new Chart(ctxI,{type:'bar',data:{labels:fmM,datasets:[
+    {label:'Intereses devengados',data:[107198, 113518, 48401, 110952, 101299],backgroundColor:'rgba(26,122,74,.85)',stack:'i',barPercentage:.5},
+    {label:'FCI',data:[8508, 10895, 8020, 6962, 7860],backgroundColor:'rgba(16,185,129,.6)',stack:'i',barPercentage:.5},
+    {label:'Rdo. por tenencia',data:[-587, 20763, -17087, 131960, -63623],backgroundColor:'rgba(245,158,11,.8)',stack:'i',barPercentage:.5}
+  ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': $'+(c.parsed.y>=0?'':'-')+Math.abs(c.parsed.y/1000).toFixed(1)+'K'},footer:function(items){let s=0;items.forEach(i=>s+=i.parsed.y);return 'Total: $'+(s/1000).toFixed(1)+'K'}}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:function(v){return'$'+(v/1000).toFixed(0)+'K'}},grid:{color:'rgba(0,0,0,.05)'}}}
     }})}
 
   const ctxR=document.getElementById('chartFXRates');
@@ -3559,14 +3562,15 @@ function renderInt(){
     const accs=accs0.map(a=>[a,av(a)]).filter(x=>x[1]&&(x[1].au!=null||x[1].su!=null)&&x[0].clas===g);
     if(!accs.length)return;
     h+='<tr class="sub-hdr"><td colspan="4">'+g+'</td></tr>';
-    accs.forEach(x=>{const a=x[0],d=x[1];
+    let gSal=0;
+    accs.forEach(x=>{const a=x[0],d=x[1];if(d.su!=null)gSal+=d.su;
       const sal=d.su==null?'<span class="fm-muted">—</span>':(intCur==="usd"?intUSD(d.su):intLoc(d.sl,a.ccy));
       const tasa=(ytd||g==="FCI"||d.rt==null)?'<span class="fm-muted">—</span>':'<span class="fm-rate">'+(d.rt*100).toFixed(2)+'%</span>';
       const inte=intCur==="usd"?intUSD(d.au):intLoc(d.al,a.ccy);
       h+='<tr><td title="'+a.name+'">'+a.name+'</td><td>'+sal+'</td><td>'+tasa+'</td><td>'+inte+'</td></tr>';
       if(g!=="Rdo. por tenencia"){anyC=true;if(d.su!=null){cSal+=d.su;if(d.rt!=null&&!ytd){cWrN+=d.su*d.rt;cWrD+=d.su;}}if(d.au!=null)cInt+=d.au;}
     });
-    if(intCur==="usd")h+='<tr class="total-row"><td>Subtotal '+g+'</td><td></td><td></td><td>'+intUSD(gp[1])+'</td></tr>';
+    if(intCur==="usd")h+='<tr class="total-row"><td>Subtotal '+g+'</td><td>'+(gSal?intUSD(gSal):'')+'</td><td></td><td>'+intUSD(gp[1])+'</td></tr>';
   });
   if(intCur==="usd"&&anyC){const wr=(!ytd&&cWrD)?'<span class="fm-rate">'+(cWrN/cWrD*100).toFixed(2)+'%</span>':'<span class="fm-muted">—</span>';
     h+='<tr class="total-row" style="background:rgba(16,185,129,.07)"><td><b>Intereses devengados + FCI</b></td><td><b>'+intUSD(cSal)+'</b></td><td><b>'+wr+'</b></td><td><b>'+intUSD(cInt)+'</b></td></tr>';}
