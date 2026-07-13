@@ -459,8 +459,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <h3>Top clientes — Revenue / GP</h3><table class="pl-table" id="fcCliTable"></table>
     </div>
 
-    <div class="sec-title">Gastos por departamento <span>líneas de P&amp;L y principales proveedores proyectados</span></div>
+    <div class="sec-title">Gastos por departamento <span>principales proveedores proyectados — Forecast YTG (Jul–Dic)</span></div>
     <div class="card mb24"><h3>Gasto operativo (OPEX) por departamento — FY</h3><div class="chart-wrap-lg"><canvas id="fcChart3"></canvas></div></div>
+    <div style="display:inline-block;background:var(--tapi-xpale);border:1px solid var(--tapi-pale);color:var(--tapi-dark);font-size:.72rem;font-weight:700;border-radius:8px;padding:6px 12px;margin-bottom:14px">📅 Detalle proyectado — Forecast YTG (Jul–Dic) · fijo, no cambia con el filtro de período</div>
     <div id="fcDeptCards"></div>
 
     <div class="sec-title">Sueldos <span>proyección por departamento y concepto</span></div>
@@ -3732,12 +3733,15 @@ setTimeout(renderInt,300);
     let html='';
     Object.entries(d.depts).forEach(([dept,dd],idx)=>{
       const arr=d.byDept[dept]||zero(); const col=DEPTC[idx%DEPTC.length];
+      if(ytg(arr)<=1) return;
+      const provs=(dd.prov||[]).filter(p=>ytg(p.v)>1).sort((a,b)=>ytg(b.v)-ytg(a.v));
       html+=`<div class="dept-card"><div class="dept-hdr" style="background:${col}">
-        <div class="dn">${dept}</div><div class="dt">${fmt(pv(arr))}</div>
-        <div class="dm">OPEX ${periodLbl()} · Act YTD ${fmt(ytd(arr))} · Fcst YTG ${fmt(ytg(arr))}</div></div>
+        <div class="dn">${dept}</div><div class="dt">${fmt(ytg(arr))}</div>
+        <div class="dm">OPEX proyectado · Forecast YTG (Jul–Dic)</div></div>
         <div class="dept-body">`;
-      html+=`<table class="pl-table"><thead><tr><th>Proveedor</th>${hdrC()}</tr></thead><tbody>`;
-      dd.prov.forEach(p=> html+=`<tr><td>${p.n}</td>${valC(p.v)}</tr>`);
+      html+=`<table class="pl-table"><thead><tr><th>Proveedor</th><th class="sm">Forecast YTG (Jul–Dic)</th></tr></thead><tbody>`;
+      if(provs.length) provs.forEach(p=> html+=`<tr><td>${p.n}</td><td class="sm">${fmt(ytg(p.v))}</td></tr>`);
+      else html+=`<tr><td colspan="2" style="color:var(--gray-400)">Sin gasto proyectado Jul–Dic</td></tr>`;
       html+='</tbody></table></div></div>';
     });
     $('fcDeptCards').innerHTML='<div class="grid-2">'+html+'</div>';
