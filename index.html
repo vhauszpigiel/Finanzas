@@ -3712,10 +3712,7 @@ setTimeout(renderInt,300);
         <div class="dn">${dept}</div><div class="dt">${fmt(fy(arr))}</div>
         <div class="dm">OPEX FY · Act YTD ${fmt(ytd(arr))} · Fcst YTG ${fmt(ytg(arr))}</div></div>
         <div class="dept-body">`;
-      html+=`<table class="pl-table" style="margin-bottom:10px"><thead><tr><th>Línea de P&L</th><th class="sm">Act YTD</th><th class="sm">Fcst YTG</th><th class="sm">FY</th></tr></thead><tbody>`;
-      FC.opexOrder.forEach(ln=>{ if(dd.lines[ln]){ const a=dd.lines[ln]; html+=`<tr><td>${ln}</td><td class="sm">${fmt(ytd(a))}</td><td class="sm">${fmt(ytg(a))}</td><td class="sm">${fmt(fy(a))}</td></tr>`; }});
-      html+='</tbody></table>';
-      html+=`<div style="font-size:.68rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 6px">Principales proveedores</div><table class="pl-table"><thead><tr><th>Proveedor</th><th class="sm">Act YTD</th><th class="sm">Fcst YTG</th><th class="sm">FY</th></tr></thead><tbody>`;
+      html+=`<table class="pl-table"><thead><tr><th>Proveedor</th><th class="sm">Act YTD</th><th class="sm">Fcst YTG</th><th class="sm">FY</th></tr></thead><tbody>`;
       dd.prov.forEach(p=> html+=`<tr><td>${p.n}</td><td class="sm">${fmt(ytd(p.v))}</td><td class="sm">${fmt(ytg(p.v))}</td><td class="sm">${fmt(fy(p.v))}</td></tr>`);
       html+='</tbody></table></div></div>';
     });
