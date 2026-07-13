@@ -412,11 +412,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:18px">
       <div class="sec-title" style="margin:0">P&amp;L de Gestión — Forecast 2026
         <span>Actual Ene–Jun · Forecast Jul–Dic · fuente: Finanzas 2026 (12)</span></div>
-      <div class="filter-group" style="min-width:280px">
-        <label>🌎 País</label>
-        <select id="fcCountry" onchange="fcRender(this.value)">
-          <option value="ALL">🌎 Consolidado (todos los países)</option>
-        </select>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div class="filter-group" style="min-width:240px">
+          <label>🌎 País</label>
+          <select id="fcCountry" onchange="fcSetCountry(this.value)">
+            <option value="ALL">🌎 Consolidado (todos los países)</option>
+          </select>
+        </div>
+        <div class="filter-group" style="min-width:200px">
+          <label>📅 Período</label>
+          <select id="fcPeriod" onchange="fcSetPeriod(this.value)">
+            <option value="all">Mensual (todos los meses)</option>
+            <option value="ytd">YTD · Actual (Ene–Jun)</option>
+            <option value="ytg">YTG · Forecast (Jul–Dic)</option>
+            <option value="fy">Full Year</option>
+            <option value="0">Ene</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Abr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Ago</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dic</option>
+          </select>
+        </div>
       </div>
     </div>
     <div style="font-size:.72rem;color:var(--gray-400);margin:-6px 0 18px 0">
@@ -433,7 +445,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <div class="card mb24" id="fcCountryCard" style="display:none">
-      <h3>Resultado por país — Full Year</h3>
+      <h3 id="fcCountryTitle">Resultado por país — Full Year</h3>
       <table class="pl-table" id="fcCountryTable"></table>
     </div>
 
@@ -3656,15 +3668,27 @@ setTimeout(renderInt,300);
   const charts={};
   function destroy(){ ['fcChart1','fcChart2','fcChart3'].forEach(id=>{ if(charts[id]){charts[id].destroy();delete charts[id];} }); }
 
-  function hdrCells(){ let h=''; for(let i=0;i<12;i++){ h+=`<th class="${i<NA?'fa':'ff'}">${M[i]}</th>`; }
-    h+='<th class="sm">Act. YTD</th><th class="sm">Fcst YTG</th><th class="sm">FY</th>'; return h; }
-  function valCells(a,{isneg=false,aspct=false,base=null}={}){ a=a||zero(); let h='';
-    for(let i=0;i<12;i++){ const cls=i<NA?'fa':'ff';
-      if(aspct){ const b=base?base[i]:1; h+=`<td class="${cls}">${b?pct((a[i]||0)/b):'–'}</td>`; }
-      else { const dv=isneg?-Math.abs(a[i]||0):(a[i]||0); h+=`<td class="${cls}"${neg(dv)}>${fmt(dv)}</td>`; } }
-    [[0,NA],[NA,12],[0,12]].forEach(([i,j])=>{ if(aspct){ const b=base?sum(base,i,j):0; h+=`<td class="sm">${b?pct(sum(a,i,j)/b):'–'}</td>`; }
-      else{ const dv=isneg?-Math.abs(sum(a,i,j)):sum(a,i,j); h+=`<td class="sm"${neg(dv)}>${fmt(dv)}</td>`; } });
-    return h; }
+  let curCountry='ALL', curPeriod='all';
+  window.fcSetCountry=function(v){ curCountry=v; window.fcRender(curCountry); };
+  window.fcSetPeriod=function(v){ curPeriod=v; window.fcRender(curCountry); };
+  const MLONG=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  function periodCols(){ const p=curPeriod;
+    if(p==='all'){ const c=[]; for(let i=0;i<12;i++) c.push({label:M[i],cls:i<NA?'fa':'ff',get:a=>a?(a[i]||0):0});
+      c.push({label:'Act. YTD',cls:'sm',get:ytd}); c.push({label:'Fcst YTG',cls:'sm',get:ytg}); c.push({label:'FY',cls:'sm',get:fy}); return c; }
+    if(p==='ytd') return [{label:'Actual YTD (Ene–Jun)',cls:'sm',get:ytd}];
+    if(p==='ytg') return [{label:'Forecast YTG (Jul–Dic)',cls:'sm',get:ytg}];
+    if(p==='fy')  return [{label:'Full Year',cls:'sm',get:fy}];
+    const i=+p; return [{label:MLONG[i]+(i<NA?' · Actual':' · Forecast'),cls:i<NA?'fa':'ff',get:a=>a?(a[i]||0):0}]; }
+  function pv(a){ const p=curPeriod; if(p==='all'||p==='fy')return fy(a); if(p==='ytd')return ytd(a); if(p==='ytg')return ytg(a); return a?(a[+p]||0):0; }
+  function periodLbl(){ const p=curPeriod; if(p==='all'||p==='fy')return 'FY'; if(p==='ytd')return 'YTD'; if(p==='ytg')return 'YTG'; return M[+p]; }
+  function ncols(){ return periodCols().length+1; }
+  function hdrCells(){ return periodCols().map(c=>`<th class="${c.cls}">${c.label}</th>`).join(''); }
+  function valCells(a,o){ o=o||{}; a=a||zero();
+    return periodCols().map(c=>{ if(o.aspct){ const b=o.base?c.get(o.base):0; return `<td class="${c.cls}">${b?pct(c.get(a)/b):'–'}</td>`; }
+      const dv=o.isneg?-Math.abs(c.get(a)):c.get(a); return `<td class="${c.cls}"${neg(dv)}>${fmt(dv)}</td>`; }).join(''); }
+  function colsCard(){ if(curPeriod==='all') return [{label:'Act YTD',get:ytd},{label:'Fcst YTG',get:ytg},{label:'FY',get:fy}]; return periodCols(); }
+  function hdrC(){ return colsCard().map(c=>`<th class="sm">${c.label}</th>`).join(''); }
+  function valC(a){ a=a||zero(); return colsCard().map(c=>`<td class="sm">${fmt(c.get(a))}</td>`).join(''); }
   const sumLines=obj=>{ let t=zero(); Object.values(obj||{}).forEach(a=>t=addA(t,a)); return t; };
 
   // ===== P&L completo alineado a P&L Ejecutivo =====
@@ -3675,22 +3699,22 @@ setTimeout(renderInt,300);
     const nrAll=sumLines(d.nonRec);
     const net=ebit.map((_,i)=>ebit[i]-nrAll[i]);
     let h=`<thead><tr><th style="min-width:230px">Línea (USD)</th>${hdrCells()}</tr></thead><tbody>`;
-    h+=`<tr class="sec-row"><td colspan="16">INGRESOS</td></tr>`;
+    h+=`<tr class="sec-row"><td colspan="${ncols()}">INGRESOS</td></tr>`;
     h+=`<tr class="ind"><td>Revenues</td>${valCells(rev)}</tr>`;
     h+=`<tr class="ind"><td>Direct Costs (COGS)</td>${valCells(cogs,{isneg:true})}</tr>`;
     h+=`<tr class="sub-row"><td>Gross Profit</td>${valCells(gp)}</tr>`;
     h+=`<tr class="mgn-row"><td>Gross Margin</td>${valCells(gp,{aspct:true,base:rev})}</tr>`;
-    h+=`<tr class="sec-row"><td colspan="16">GASTOS OPERATIVOS</td></tr>`;
+    h+=`<tr class="sec-row"><td colspan="${ncols()}">GASTOS OPERATIVOS</td></tr>`;
     FC.opexOrder.forEach(ln=>{ if(d.plLines[ln]) h+=`<tr class="ind"><td>${ln}</td>${valCells(d.plLines[ln],{isneg:true})}</tr>`; });
     h+=`<tr class="sub-row"><td>EBITDA</td>${valCells(ebit)}</tr>`;
     h+=`<tr class="mgn-row"><td>EBITDA Margin</td>${valCells(ebit,{aspct:true,base:rev})}</tr>`;
     if(Object.keys(d.nonRec||{}).length){
-      h+=`<tr class="sec-row"><td colspan="16">NO RECURRENTES</td></tr>`;
+      h+=`<tr class="sec-row"><td colspan="${ncols()}">NO RECURRENTES</td></tr>`;
       FC.nonRecOrder.forEach(ln=>{ if(d.nonRec[ln]) h+=`<tr class="ind"><td>${ln}</td>${valCells(d.nonRec[ln],{isneg:true})}</tr>`; });
     }
     h+=`<tr class="tot-row"><td>NET INCOME</td>${valCells(net)}</tr>`;
     h+=`<tr class="mgn-row"><td>Net Margin</td>${valCells(net,{aspct:true,base:rev})}</tr>`;
-    h+='</tbody>'; $('fcPLTable').innerHTML=h;
+    h+='</tbody>'; $('fcPLTable').innerHTML=h; $('fcPLTable').style.minWidth=curPeriod==='all'?'1180px':'auto';
   }
   function renderCli(d){
     let h=`<thead><tr><th style="min-width:180px">Cliente</th><th class="sm">Rev YTD</th><th class="sm">Rev YTG</th><th class="sm">Rev FY</th><th class="sm">GP FY</th><th class="sm">GP margin</th></tr></thead><tbody>`;
@@ -3702,25 +3726,26 @@ setTimeout(renderInt,300);
     let h=`<thead><tr><th style="min-width:180px">Departamento</th>${hdrCells()}</tr></thead><tbody>`;
     Object.entries(d.payByDept).forEach(([k,a])=> h+=`<tr><td>${k}</td>${valCells(a)}</tr>`);
     h+=`<tr class="tot-row"><td>Total Sueldos</td>${valCells(d.payroll)}</tr></tbody>`;
-    $('fcPayTable').innerHTML=h;
+    $('fcPayTable').innerHTML=h; $('fcPayTable').style.minWidth=curPeriod==='all'?'1000px':'auto';
   }
   function renderDepts(d){
     let html='';
     Object.entries(d.depts).forEach(([dept,dd],idx)=>{
       const arr=d.byDept[dept]||zero(); const col=DEPTC[idx%DEPTC.length];
       html+=`<div class="dept-card"><div class="dept-hdr" style="background:${col}">
-        <div class="dn">${dept}</div><div class="dt">${fmt(fy(arr))}</div>
-        <div class="dm">OPEX FY · Act YTD ${fmt(ytd(arr))} · Fcst YTG ${fmt(ytg(arr))}</div></div>
+        <div class="dn">${dept}</div><div class="dt">${fmt(pv(arr))}</div>
+        <div class="dm">OPEX ${periodLbl()} · Act YTD ${fmt(ytd(arr))} · Fcst YTG ${fmt(ytg(arr))}</div></div>
         <div class="dept-body">`;
-      html+=`<table class="pl-table"><thead><tr><th>Proveedor</th><th class="sm">Act YTD</th><th class="sm">Fcst YTG</th><th class="sm">FY</th></tr></thead><tbody>`;
-      dd.prov.forEach(p=> html+=`<tr><td>${p.n}</td><td class="sm">${fmt(ytd(p.v))}</td><td class="sm">${fmt(ytg(p.v))}</td><td class="sm">${fmt(fy(p.v))}</td></tr>`);
+      html+=`<table class="pl-table"><thead><tr><th>Proveedor</th>${hdrC()}</tr></thead><tbody>`;
+      dd.prov.forEach(p=> html+=`<tr><td>${p.n}</td>${valC(p.v)}</tr>`);
       html+='</tbody></table></div></div>';
     });
     $('fcDeptCards').innerHTML='<div class="grid-2">'+html+'</div>';
   }
   function renderCountryTable(){
     let h=`<thead><tr><th>País</th><th class="sm">Revenue</th><th class="sm">Gross Profit</th><th class="sm">GP mg</th><th class="sm">OPEX+Sueldos</th><th class="sm">EBITDA</th></tr></thead><tbody>`;
-    const line=d=>{ const r=fy(d.rev),g=fy(d.gp),o=fy(sumLines(d.plLines)),e=g-o; return {r,g,o,e}; };
+    const line=d=>{ const r=pv(d.rev),g=pv(d.gp),o=pv(sumLines(d.plLines)),e=g-o; return {r,g,o,e}; };
+    $('fcCountryTitle').textContent='Resultado por país — '+periodLbl();
     FC.order.forEach(c=>{ const d=FC.data[c]; if(!d)return; const x=line(d);
       h+=`<tr><td>${FC.flag[c]} ${FC.label[c]}</td><td class="sm">${fmt(x.r)}</td><td class="sm">${fmt(x.g)}</td><td class="sm">${x.r?pct(x.g/x.r):'–'}</td><td class="sm">${fmt(x.o)}</td><td class="sm"${neg(x.e)}>${fmt(x.e)}</td></tr>`; });
     const x=line(FC.data.ALL);
@@ -3729,12 +3754,12 @@ setTimeout(renderInt,300);
   }
   function kpi(label,val,sub,g){ return `<div class="kpi ${g}"><div class="label">${label}</div><div class="val">${val}</div><div class="sub"><span class="kpi-sub">${sub}</span></div></div>`; }
   function renderKPIs(d){
-    const r=fy(d.rev),g=fy(d.gp),o=fy(sumLines(d.plLines)),e=g-o;
+    const opex=sumLines(d.plLines); const r=pv(d.rev),g=pv(d.gp),o=pv(opex),e=g-o; const L=periodLbl();
     let h='';
-    h+=kpi('Revenue FY',fmt(r),`Act ${fmt(ytd(d.rev))} · Fcst ${fmt(ytg(d.rev))}`,'g1');
-    h+=kpi('Gross Profit FY',fmt(g)+` · ${pct(g/r)}`,`Act ${fmt(ytd(d.gp))} · Fcst ${fmt(ytg(d.gp))}`,'g2');
-    h+=kpi('Costos FY (OPEX+Sueldos)',fmt(o),`Sueldos ${fmt(fy(d.payroll))} · OPEX ${fmt(o-fy(d.payroll))}`,'g3');
-    h+=kpi('EBITDA FY',fmt(e)+` · ${pct(e/r)}`,`Act ${fmt(ytd(d.gp)-sum(sumLines(d.plLines),0,NA))} · Fcst ${fmt(ytg(d.gp)-sum(sumLines(d.plLines),NA,12))}`,'g4');
+    h+=kpi('Revenue '+L,fmt(r),`Act ${fmt(ytd(d.rev))} · Fcst ${fmt(ytg(d.rev))}`,'g1');
+    h+=kpi('Gross Profit '+L,fmt(g)+(r?` · ${pct(g/r)}`:''),`Act ${fmt(ytd(d.gp))} · Fcst ${fmt(ytg(d.gp))}`,'g2');
+    h+=kpi('Costos '+L+' (OPEX+Sueldos)',fmt(o),`Sueldos ${fmt(pv(d.payroll))} · OPEX ${fmt(o-pv(d.payroll))}`,'g3');
+    h+=kpi('EBITDA '+L,fmt(e)+(r?` · ${pct(e/r)}`:''),`Act ${fmt(ytd(d.gp)-sum(opex,0,NA))} · Fcst ${fmt(ytg(d.gp)-sum(opex,NA,12))}`,'g4');
     $('fcKPIs').innerHTML=h;
   }
   function mkCharts(d){
