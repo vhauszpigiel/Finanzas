@@ -3635,9 +3635,9 @@ function setIntMonth(m,el){intMonth=m;document.querySelectorAll('#tab-finmetrics
 function setIntCur(c,el){intCur=c;document.getElementById('intCurUSD').classList.toggle('active',c==='usd');document.getElementById('intCurLocal').classList.toggle('active',c==='local');renderInt();}
 function setIntCountry(c){intCountry=c;renderInt();}
 function renderInt(){
-  const ytd=intMonth==="ytd",mn=ytd?5:INTVIEW.mnum[intMonth],lbl=ytd?"YTD":INTVIEW.monthLbl[intMonth];
+  const ytd=intMonth==="ytd",mn=ytd?6:INTVIEW.mnum[intMonth],lbl=ytd?"YTD":INTVIEW.monthLbl[intMonth];
   function av(a){
-    if(ytd){let au=0,al=0,ha=false,su=null,sl=null;[1,2,3,4,5].forEach(k=>{const d=a.m[k];if(!d)return;if(d.au!=null){au+=d.au;ha=true;}if(d.al!=null)al+=d.al;if(d.su!=null){su=d.su;sl=d.sl;}});return{su:su,sl:sl,rt:null,au:ha?au:null,al:al};}
+    if(ytd){let au=0,al=0,ha=false,su=null,sl=null;[1,2,3,4,5,6].forEach(k=>{const d=a.m[k];if(!d)return;if(d.au!=null){au+=d.au;ha=true;}if(d.al!=null)al+=d.al;if(d.su!=null){su=d.su;sl=d.sl;}});return{su:su,sl:sl,rt:null,au:ha?au:null,al:al};}
     return a.m[mn]||null;
   }
   const sum={"Intereses devengados":0,"FCI":0,"Rdo. por tenencia":0};
@@ -3650,7 +3650,7 @@ function renderInt(){
   document.getElementById('intApertura').innerHTML=cards.map(c=>'<div class="kpi '+c[2]+'"><div class="label">'+c[0]+' — '+lblTxt+'</div><div class="val" style="font-size:1.3rem">'+intUSD(c[1])+'</div><div class="sub"><span class="kpi-sub">USD'+cs+'</span></div></div>').join("");
   const groups=[["Intereses devengados",ig],["FCI",fci],["Rdo. por tenencia",rdt]];
   const intHdr=ytd?"Interés YTD":("Interés "+lbl+"-26");
-  const salHdr=ytd?"Saldo (May)":"Saldo";
+  const salHdr=ytd?"Saldo EOP (Jun)":"Saldo EOP";
   let h='<thead><tr><th>Cuenta</th><th>'+salHdr+'</th><th>Tasa anual.</th><th>'+intHdr+'</th></tr></thead><tbody>';
   let cSal=0,cInt=0,cWrN=0,cWrD=0,anyC=false;
   groups.forEach(gp=>{
