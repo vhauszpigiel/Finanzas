@@ -158,7 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dept-sec{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin:10px 0 7px}
 .dept-sec:first-child{margin-top:0}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.bar-lbl{font-size:.75rem;color:var(--gray-600);flex:0 0 130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-lbl{font-size:.75rem;color:var(--gray-600);flex:0 0 130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:help}
 .bar-trk{flex:1;height:5px;background:var(--gray-100);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;background:var(--tapi-mid)}
 .bar-fill.ln{background:#7c3aed}
@@ -3661,7 +3661,7 @@ function renderInt(){
       const sal=d.su==null?'<span class="fm-muted">—</span>':(intCur==="usd"?intUSD(d.su):intLoc(d.sl,a.ccy));
       const tasa=(ytd||g==="FCI"||d.rt==null)?'<span class="fm-muted">—</span>':'<span class="fm-rate">'+(d.rt*100).toFixed(2)+'%</span>';
       const inte=intCur==="usd"?intUSD(d.au):intLoc(d.al,a.ccy);
-      h+='<tr><td title="'+a.name+'">'+a.name+'</td><td>'+sal+'</td><td>'+tasa+(a.note?' <span class="expl-note" style="cursor:help" title="'+String(a.note).replace(/"/g,'&quot;')+'">💡</span>':'')+'</td><td>'+inte+'</td></tr>';
+      h+='<tr><td title="'+a.name+'">'+a.name+'</td><td>'+sal+'</td><td>'+tasa+(a.note?' <span style="cursor:help;border-bottom:1px dotted #94A3B8" title="'+String(a.note).replace(/"/g,'&quot;')+'">💡</span>':'')+'</td><td>'+inte+'</td></tr>';
       if(g!=="Rdo. por tenencia"){anyC=true;if(d.su!=null){cSal+=d.su;if(d.rt!=null&&!ytd){cWrN+=d.su*d.rt;cWrD+=d.su;}}if(d.au!=null)cInt+=d.au;}
     });
     if(intCur==="usd")h+='<tr class="total-row"><td>Subtotal '+g+'</td><td>'+(gSal?intUSD(gSal):'')+'</td><td></td><td>'+intUSD(gp[1])+'</td></tr>';
