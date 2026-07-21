@@ -308,14 +308,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="filter-group" style="flex:1;min-width:auto">
       <label>Mes</label>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="tbtn" onclick="setPLMonth('jan',this)">Enero 2026</button>
-        <button class="tbtn" onclick="setPLMonth('feb',this)">Febrero 2026</button>
-        <button class="tbtn" onclick="setPLMonth('mar',this)">Marzo 2026</button>
-        <button class="tbtn" onclick="setPLMonth('apr',this)">Abril 2026</button>
-        <button class="tbtn" onclick="setPLMonth('may',this)">Mayo 2026</button>
-         <button class="tbtn active" onclick="setPLMonth('jun',this)">Junio 2026</button>
-      </div>
+      <select onchange="setPLMonth(this.value)">
+        <option value="jan">Enero 2026</option>
+        <option value="feb">Febrero 2026</option>
+        <option value="mar">Marzo 2026</option>
+        <option value="apr">Abril 2026</option>
+        <option value="may">Mayo 2026</option>
+        <option value="jun" selected>Junio 2026</option>
+        <option value="q1">Q1 2026 (Ene–Mar)</option>
+        <option value="q2">Q2 2026 (Abr–Jun)</option>
+        <option value="ytd">YTD 2026 (Ene–Jun)</option>
+      </select>
     </div>
   </div>
   <div class="grid-4 mb24">
@@ -1034,6 +1037,22 @@ let plChartInst=null, plOpexInst=null;
 let currentPLMonth='jun', currentPLCountry='Consolidado';
 const COUNTRY_FLAGS = {'Consolidado':'🌎','México':'🇲🇽','Argentina':'🇦🇷','USA':'🇺🇸','Chile':'🇨🇱','Colombia':'🇨🇴','Perú':'🇵🇪'};
 
+const PL_LABEL={jan:'Ene',feb:'Feb',mar:'Mar',apr:'Abr',may:'May',jun:'Jun',q1:'Q1',q2:'Q2',ytd:'YTD'};
+const PL_PREV_EXT={jan:null,feb:'jan',mar:'feb',apr:'mar',may:'apr',jun:'may',q1:null,q2:'q1',ytd:null};
+const PL_AGG={q1:['jan','feb','mar'],q2:['apr','may','jun'],ytd:['jan','feb','mar','apr','may','jun']};
+const PL_MARGINS={'Gross Margin':['Gross Profit','Revenues'],'Operating Margin':['EBITDA','Revenues'],'Net Margin':['Net income - rec.','Revenues']};
+function plPeriodView(pl, per){
+  const out={};
+  if(!PL_AGG[per]){ for(const k in pl){ out[k]=pl[k]?pl[k][per]:null; } return out; }
+  const ms=PL_AGG[per];
+  for(const k in pl){
+    if(PL_MARGINS[k]){ out[k]=null; continue; }
+    let s=0,any=false; ms.forEach(m=>{const v=pl[k]&&pl[k][m]; if(v!=null){s+=v;any=true;}});
+    out[k]=any?s:null;
+  }
+  for(const mk in PL_MARGINS){ const num=out[PL_MARGINS[mk][0]], den=out[PL_MARGINS[mk][1]]; out[mk]=(den)?num/den:null; }
+  return out;
+}
 function buildPL(month, country){
   month = month || currentPLMonth || 'apr';
   country = country || currentPLCountry || 'Consolidado';
@@ -1041,16 +1060,18 @@ function buildPL(month, country){
   currentPLCountry = country;
   // Use per-country P&L if available; otherwise fallback to consolidated
   const pl = (D.plByCountry && D.plByCountry[country]) ? D.plByCountry[country] : D.pl;
-  const prev = PL_PREV[month];
-  const mLbl = PL_MONTHS.find(m=>m.k===month).s;
-  const pLbl = prev ? PL_MONTHS.find(m=>m.k===prev).s : null;
+  const prev = PL_PREV_EXT[month];
+  const plP = plPeriodView(pl, month);
+  const plPrevV = prev ? plPeriodView(pl, prev) : null;
+  const mLbl = PL_LABEL[month]||month;
+  const pLbl = prev ? (PL_LABEL[prev]||prev) : null;
   const countryLbl = `${COUNTRY_FLAGS[country]||''} ${country}`;
 
   // KPIs
   const setKPI = (id, cid, sid, val, prevVal, isGood=true) => {
     document.getElementById(id).textContent = fmt(val);
     const el = document.getElementById(cid);
-    if (prevVal == null) { el.textContent = '—'; el.className='chip neu'; document.getElementById(sid).textContent='sin mes previo'; return; }
+    if (prevVal == null) { el.textContent = '—'; el.className='chip neu'; document.getElementById(sid).textContent='sin período previo'; return; }
     const p = pct(val, prevVal); const sign = p>=0?'+':'';
     el.textContent = sign+p.toFixed(1)+'%';
     el.className = 'chip '+(p>=0?(isGood?'pos':'neg'):(isGood?'neg':'pos'));
@@ -1061,12 +1082,12 @@ function buildPL(month, country){
   document.getElementById('k2l').textContent = `Gross Profit ${mLbl}${cSuffix}`;
   document.getElementById('k3l').textContent = `EBITDA ${mLbl}${cSuffix}`;
   document.getElementById('k4l').textContent = `Net Income ${mLbl}${cSuffix}`;
-  setKPI('k1','k1c','k1s', pl.Revenues[month], prev?pl.Revenues[prev]:null, true);
-  document.getElementById('k2').textContent = fmt(pl['Gross Profit'][month]);
-  document.getElementById('k2c').textContent = (pl['Gross Margin'][month]*100).toFixed(1)+'%';
-  setKPI('k3','k3c','k3s', pl.EBITDA[month], prev?pl.EBITDA[prev]:null, true);
-  document.getElementById('k4').textContent = fmt(pl['Net income - rec.'][month]);
-  document.getElementById('k4c').textContent = (pl['Net Margin'][month]*100).toFixed(1)+'%';
+  setKPI('k1','k1c','k1s', plP['Revenues'], plPrevV?plPrevV['Revenues']:null, true);
+  document.getElementById('k2').textContent = fmt(plP['Gross Profit']);
+  document.getElementById('k2c').textContent = ((plP['Gross Margin']||0)*100).toFixed(1)+'%';
+  setKPI('k3','k3c','k3s', plP['EBITDA'], plPrevV?plPrevV['EBITDA']:null, true);
+  document.getElementById('k4').textContent = fmt(plP['Net income - rec.']);
+  document.getElementById('k4c').textContent = ((plP['Net Margin']||0)*100).toFixed(1)+'%';
 
   // Chart — show all 3 months
   if(plChartInst) plChartInst.destroy();
@@ -1088,7 +1109,7 @@ function buildPL(month, country){
   const opLines = ['Payroll','HR','Tech & Infra','Softwares','Legal & Accounting','Travels','Marketing','Tapihaus','Other Expenses'];
   const labels = [], vals = [];
   opLines.forEach(l=>{
-    const v = Math.abs((pl[l]||{})[month] || 0);
+    const v = Math.abs(plP[l] || 0);
     if(v>0){ labels.push(l); vals.push(v/1e3); }
   });
   const DONUT_COLORS = ['#0B2D20','#1A7A4A','#25A464','#34C97B','#10B981','#059669','#0D9488','#7C3AED','#D97706'];
@@ -1136,9 +1157,9 @@ function buildPL(month, country){
   let h=`<thead><tr><th style="min-width:200px">Línea</th><th>${prevHdr}</th><th>${PL_MONTHS.find(m=>m.k===month).l}</th><th>Δ MoM</th><th>Δ $</th></tr></thead><tbody>`;
   for(const r of rows){
     if(r.t==='sec'){h+=`<tr class="sec-row"><td colspan="5">${r.l}</td></tr>`;continue}
-    const d=pl[r.k]; if(!d) continue;
-    const cur = d[month];
-    const pv = prev ? d[prev] : null;
+    if(!(r.k in plP)) continue;
+    const cur = plP[r.k];
+    const pv = plPrevV ? plPrevV[r.k] : null;
     const p = (pv!=null && pv!==0) ? pct(cur, pv) : 0;
     const abs = pv!=null ? cur - pv : 0;
     const rc=(r.t==='sub'?'sub-row':r.t==='tot'?'tot-row':r.t==='mgn'?'mgn-row':'')+(r.ind?' ind':'');
@@ -1159,10 +1180,9 @@ function buildPL(month, country){
 }
 
 function setPLMonth(month, btn){
-  document.querySelectorAll('#tab-pl .tbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn){document.querySelectorAll('#tab-pl .tbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
   buildPL(month, currentPLCountry);
-  if (typeof buildCountry === 'function') buildCountry(month);
+  if (typeof buildCountry === 'function' && D.country[month]) buildCountry(month);
 }
 function setPLCountry(country){
   buildPL(currentPLMonth, country);
